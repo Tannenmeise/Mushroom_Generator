@@ -54,11 +54,9 @@ def create_toadstool():
 
     """ STEP 2 : EXTRUDE CAP """
     # extrude (creates new geometry)
-    extruded = bmesh.ops.extrude_face_region(bm, geom=face)
+    bmesh.ops.extrude_face_region(bm, geom=face)
     # needed to get the updated "bm.faces[i]"
     bm.faces.ensure_lookup_table()
-    # get the face to be extruded
-    extruded = [bm.faces[10]]
     # needed to get the updated "bm.verts[i]"
     bm.verts.ensure_lookup_table()
     # loop through all vertices that need to be translated
@@ -74,9 +72,8 @@ def create_toadstool():
     bmesh.ops.inset_region(bm, faces=face, thickness=0.25, depth=0)
     
     """ STEP 4 : EXTRUDE STEM """
-    extruded = bmesh.ops.extrude_face_region(bm, geom=face)
+    bmesh.ops.extrude_face_region(bm, geom=face)
     bm.faces.ensure_lookup_table()
-    extruded = [bm.faces[10]]
     bm.verts.ensure_lookup_table()
     for i in range(20, 24):
         bm.verts[i].co += bm.verts[i].normal * 2
