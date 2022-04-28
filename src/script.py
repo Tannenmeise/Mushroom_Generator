@@ -1,7 +1,5 @@
 import bpy
 import bmesh
-import random
-from mathutils import Vector
 
 
 def init():
@@ -55,8 +53,6 @@ def create_toadstool():
     """ STEP 2 : EXTRUDE CAP """
     # extrude (creates new geometry)
     bmesh.ops.extrude_face_region(bm, geom=face)
-    # needed to get the updated "bm.faces[i]"
-    bm.faces.ensure_lookup_table()
     # needed to get the updated "bm.verts[i]"
     bm.verts.ensure_lookup_table()
     # loop through all vertices that need to be translated
@@ -73,7 +69,6 @@ def create_toadstool():
     
     """ STEP 4 : EXTRUDE STEM """
     bmesh.ops.extrude_face_region(bm, geom=face)
-    bm.faces.ensure_lookup_table()
     bm.verts.ensure_lookup_table()
     for i in range(20, 24):
         bm.verts[i].co += bm.verts[i].normal * 2
