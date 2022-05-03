@@ -68,13 +68,34 @@ def create_toadstool():
     bmesh.ops.inset_region(bm, faces=face, thickness=0.25, depth=0)
     
     """ STEP 4 : EXTRUDE STEM """
+    translate_factor = 1
+    # first extrusion
     bmesh.ops.extrude_face_region(bm, geom=face)
     bm.verts.ensure_lookup_table()
     for i in range(20, 24):
-        bm.verts[i].co += bm.verts[i].normal * 2
+        bm.verts[i].co += bm.verts[i].normal * translate_factor
     bmesh.ops.delete(bm, geom=face, context ='FACES_ONLY')
-    
+    # second extrusion
+    bm.faces.ensure_lookup_table()
+    face = [bm.faces[17]]
+    bmesh.ops.extrude_face_region(bm, geom=face)
+    bm.verts.ensure_lookup_table()
+    for i in range(24, 28):
+        bm.verts[i].co += bm.verts[i].normal * translate_factor
+    bmesh.ops.delete(bm, geom=face, context ='FACES_ONLY')
 
+    """ STEP 5 : THICKEN STEM BASE """
+    scale_factor = 2
+    bm.verts.ensure_lookup_table()
+    for i in range(24, 28):
+        bm.verts[i].co.x *= scale_factor
+        bm.verts[i].co.y *= scale_factor
+    
+    """ STEP X : PLACE TOADSTOOL SOMEWHERE IN SCENE """
+    
+    """ DONE """
+
+    obj.data.update()
     bm.to_mesh(obj.data)
     bm.free()
     obj.data.update()
