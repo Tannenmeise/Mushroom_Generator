@@ -90,6 +90,27 @@ def create_toadstool():
     for i in range(24, 28):
         bm.verts[i].co.x *= scale_factor
         bm.verts[i].co.y *= scale_factor
+        
+    """ STEP 6 : CREATE STEM MATERIAL """
+    stem_material = bpy.data.materials.new(name="toadstool_stem")
+    stem_material.diffuse_color = (1, 0.847914, 0.631299, 1)
+    obj.data.materials.append(stem_material)
+    # assign material to stem faces
+    bm.faces.ensure_lookup_table()
+    bm.faces[10].material_index = 0
+    for i in range(18, 26):
+        bm.faces[i].material_index = 0
+        
+    """ STEP 7 : CREATE CAP MATERIAL """
+    cap_material = bpy.data.materials.new(name="toadstool_cap")
+    cap_material.diffuse_color = (1, 0, 0, 1)
+    obj.data.materials.append(cap_material)
+    # assign material to cap faces
+    bm.faces.ensure_lookup_table()
+    for i in range(0, 10):
+        bm.faces[i].material_index = 1
+    for i in range(11, 18):
+        bm.faces[i].material_index = 1
     
     """ STEP X : PLACE TOADSTOOL SOMEWHERE IN SCENE """
     
@@ -99,7 +120,7 @@ def create_toadstool():
     bm.to_mesh(obj.data)
     bm.free()
     obj.data.update()
-    
+
 
 init()
 main()
