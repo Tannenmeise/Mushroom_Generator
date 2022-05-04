@@ -1,6 +1,8 @@
 import bpy
 import bmesh
 
+# TODO: INSERT TYPES EVERYWHERE WHERE POSSIBLE!!!
+
 
 def init():
     # toggle to object mode
@@ -103,6 +105,26 @@ def create_toadstool():
         
     """ STEP 7 : CREATE CAP MATERIAL """
     cap_material = bpy.data.materials.new(name="toadstool_cap")
+    # enable nodes
+    cap_material.use_nodes = True
+    nodes_cap = cap_material.node_tree.nodes
+    # create all nodes
+    node_coords = nodes_cap.new("ShaderNodeTexCoord")
+    node_mapping = nodes_cap.new("ShaderNodeMapping")
+    node_dots = nodes_cap.new("ShaderNodeTexVoronoi")
+    node_math = nodes_cap.new("ShaderNodeMath")
+    node_math.operation = 'LESS_THAN'
+    node_colors = nodes_cap.new("ShaderNodeValToRGB")
+    # set nodes' values
+    node_colors.color_ramp.elements[0].color = (1,0,0,1)
+    # connect nodes
+    cap_material.node_tree.links.new(node_coords.outputs[3], node_mapping.inputs[0])
+    cap_material.node_tree.links.new(node_mapping.outputs[0], node_dots.inputs[0])
+    cap_material.node_tree.links.new(node_dots.outputs[0], node_math.inputs[0])
+    cap_material.node_tree.links.new(node_math.outputs[0], node_colors.inputs[0])
+    cap_material.node_tree.links.new(node_colors.outputs[0], nodes_cap["Principled BSDF"].inputs[0])
+    
+    
     cap_material.diffuse_color = (1, 0, 0, 1)
     obj.data.materials.append(cap_material)
     # assign material to cap faces
