@@ -1,7 +1,21 @@
 import bpy
 import bmesh
 
-# TODO: INSERT TYPES EVERYWHERE WHERE POSSIBLE!!!
+
+# TODO: INSERT TYPES EVERYWHERE WHERE POSSIBLE!!!???
+
+
+bl_info = {
+    "name": "Mushroom Generator",
+    "description": "Generate a delightful amount of likable mushrooms",
+    "author": "Tamara Hezel",
+    "version": (1, 0, 0),
+    "blender": (3, 10, 0),
+    "location": "View3D > Add > Mesh",
+    "doc_url": "https://github.com/Tannenmeise/Mushroom_Generator",
+    "tracker_url": "https://github.com/Tannenmeise/Mushroom_Generator/issues",
+    "category": "Add Mesh"
+}
 
 
 def init():
@@ -133,6 +147,23 @@ def create_toadstool():
         bm.faces[i].material_index = 1
     for i in range(11, 18):
         bm.faces[i].material_index = 1
+        
+    """ STEP 8 : OVERALL SCALING """
+    # scale all vector along the z-plane to make a thicker mushroom
+    scale_factor = 2
+    bm.verts.ensure_lookup_table()
+    for vert in bm.verts:
+        vert.co.x *= scale_factor
+        vert.co.y *= scale_factor
+    
+    # scale all vectors to make an overall smaller or bigger mushroom
+    # => try to make the size realistic maybe? scale 1 = 1m
+    scale_factor = 0.5
+    bm.verts.ensure_lookup_table()
+    for vert in bm.verts:
+        vert.co.x *= scale_factor
+        vert.co.y *= scale_factor
+        vert.co.z *= scale_factor
     
     """ STEP X : PLACE TOADSTOOL SOMEWHERE IN SCENE """
     
