@@ -140,7 +140,10 @@ def create_toadstool():
     random_threshold_value = random.uniform(0.2, 0.45)
     node_math.inputs[1].default_value = random_threshold_value # threshold
     # color ramp node
-    node_colors.color_ramp.elements[0].color = (1,0,0,1)
+    random_color_value_r = random.uniform(1, 1)
+    random_color_value_g = random.uniform(0, 0.05)
+    random_color_value_b = random.uniform(0, 0.)
+    node_colors.color_ramp.elements[0].color = (random_color_value_r,random_color_value_g,random_color_value_b,1)
     # connect nodes
     cap_material.node_tree.links.new(node_coords.outputs[3], node_mapping.inputs[0])
     cap_material.node_tree.links.new(node_mapping.outputs[0], node_dots.inputs[0])
