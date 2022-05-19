@@ -1,6 +1,6 @@
 import bpy
 import bmesh
-
+import random
 
 # TODO: INSERT TYPES EVERYWHERE WHERE POSSIBLE!!!???
 
@@ -79,9 +79,11 @@ def create_toadstool():
     bmesh.ops.delete(bm, geom=face, context ='FACES_ONLY')
     
     """ STEP 3 : INSET STEM """
+    random_stem_thickness = random.uniform(0.1, 0.3)
+    #random_stem_thickness = 0.2
     bm.faces.ensure_lookup_table()
     face = [bm.faces[9]]
-    bmesh.ops.inset_region(bm, faces=face, thickness=0.25, depth=0)
+    bmesh.ops.inset_region(bm, faces=face, thickness=random_stem_thickness, depth=0)
     
     """ STEP 4 : EXTRUDE STEM """
     translate_factor = 1
@@ -101,7 +103,7 @@ def create_toadstool():
     bmesh.ops.delete(bm, geom=face, context ='FACES_ONLY')
 
     """ STEP 5 : THICKEN STEM BASE """
-    scale_factor = 2
+    scale_factor = 1.5
     bm.verts.ensure_lookup_table()
     for i in range(24, 28):
         bm.verts[i].co.x *= scale_factor
@@ -130,6 +132,14 @@ def create_toadstool():
     node_math.operation = 'LESS_THAN'
     node_colors = nodes_cap.new("ShaderNodeValToRGB")
     # set nodes' values
+    # voronoi node
+    node_dots.inputs[2].default_value = 60 # scale
+    random_randomness_value = random.uniform(0.5, 1)
+    node_dots.inputs[5].default_value = random_randomness_value # randomness
+    # less than node
+    random_threshold_value = random.uniform(0.2, 0.45)
+    node_math.inputs[1].default_value = random_threshold_value # threshold
+    # color ramp node
     node_colors.color_ramp.elements[0].color = (1,0,0,1)
     # connect nodes
     cap_material.node_tree.links.new(node_coords.outputs[3], node_mapping.inputs[0])
@@ -148,22 +158,36 @@ def create_toadstool():
     for i in range(11, 18):
         bm.faces[i].material_index = 1
         
-    """ STEP 8 : OVERALL SCALING """
-    # scale all vector along the z-plane to make a thicker mushroom
-    scale_factor = 2
+    """ STEP 8 : CHANGE CAP HEIGHT """
+    random_translate_factor = random.uniform(0.1, 1)
+    #random_translate_factor = 1
     bm.verts.ensure_lookup_table()
-    for vert in bm.verts:
-        vert.co.x *= scale_factor
-        vert.co.y *= scale_factor
+    for i in range(0, 7, 2):
+        bm.verts[i].co.z *= random_translate_factor
+    for i in range(8, 12):
+        bm.verts[i].co.z *= random_translate_factor
     
+    """STEP 9 : CHANGE CAP WIDTH """
+    random_scale_factor = random.uniform(0.9, 2.5)
+    #random_scale_factor = 1
+    bm.verts.ensure_lookup_table()
+    for i in range(0, 7, 2):
+        bm.verts[i].co.x *= random_scale_factor
+        bm.verts[i].co.y *= random_scale_factor
+    for i in range(8, 12):
+        bm.verts[i].co.x *= random_scale_factor
+        bm.verts[i].co.y *= random_scale_factor
+        
+    """ STEP 9 : OVERALL SCALING """
     # scale all vectors to make an overall smaller or bigger mushroom
-    # => try to make the size realistic maybe? scale 1 = 1m
-    scale_factor = 0.5
+    # realisitc size (1 = 1m): mushroom 10cm to 20cm
+    random_scale_factor = random.uniform(0.045, 0.09)
+    #random_scale_factor = 0.09
     bm.verts.ensure_lookup_table()
     for vert in bm.verts:
-        vert.co.x *= scale_factor
-        vert.co.y *= scale_factor
-        vert.co.z *= scale_factor
+        vert.co.x *= random_scale_factor
+        vert.co.y *= random_scale_factor
+        vert.co.z *= random_scale_factor
     
     """ STEP X : PLACE TOADSTOOL SOMEWHERE IN SCENE """
     
