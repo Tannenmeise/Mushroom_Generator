@@ -2,9 +2,6 @@ import bpy
 import bmesh
 import random
 
-# TODO: INSERT TYPES EVERYWHERE WHERE POSSIBLE!!!???
-
-
 bl_info = {
     "name": "Mushroom Generator",
     "description": "Generate a delightful amount of likable mushrooms",
@@ -112,10 +109,25 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
         for i in range(24, 28):
             bm.verts[i].co.x *= scale_factor
             bm.verts[i].co.y *= scale_factor
+        
+        """ STEP 6 : ADD MATERIAL """
+        """
+        if self.SPECIES == 'SP1':
+            stem_material, cap_material = self.create_boletus_materials()
             
-        """ STEP 6 : CREATE STEM MATERIAL """
-        stem_material = bpy.data.materials.new(name="toadstool_stem")
-        stem_material.diffuse_color = (1, 0.847914, 0.631299, 1)
+        elif self.SPECIES == 'SP2':
+            stem_material, cap_material = self.create_crested_inkling_materials()
+        
+        elif self.SPECIES == 'SP3':
+            stem_material, cap_material = self.create_drab_bonnet_materials()
+            
+        elif self.SPECIES == 'SP4':
+            stem_material, cap_material = self.create_toadstool_materials()
+        """
+        stem_material, cap_material = self.create_toadstool_materials()
+        
+        
+        # append stem material to object
         obj.data.materials.append(stem_material)
         # assign material to stem faces
         bm.faces.ensure_lookup_table()
@@ -123,47 +135,14 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
         for i in range(18, 26):
             bm.faces[i].material_index = 0
             
-        """ STEP 7 : CREATE CAP MATERIAL """
-        cap_material = bpy.data.materials.new(name="toadstool_cap")
-        # enable nodes
-        cap_material.use_nodes = True
-        nodes_cap = cap_material.node_tree.nodes
-        # create all nodes
-        node_coords = nodes_cap.new("ShaderNodeTexCoord")
-        node_mapping = nodes_cap.new("ShaderNodeMapping")
-        node_dots = nodes_cap.new("ShaderNodeTexVoronoi")
-        node_math = nodes_cap.new("ShaderNodeMath")
-        node_math.operation = 'LESS_THAN'
-        node_colors = nodes_cap.new("ShaderNodeValToRGB")
-        # set nodes' values
-        # voronoi node
-        node_dots.inputs[2].default_value = 60 # scale
-        random_randomness_value = random.uniform(0.5, 1)
-        node_dots.inputs[5].default_value = random_randomness_value # randomness
-        # less than node
-        random_threshold_value = random.uniform(0.2, 0.45)
-        node_math.inputs[1].default_value = random_threshold_value # threshold
-        # color ramp node
-        random_color_value_r = random.uniform(1, 1)
-        random_color_value_g = random.uniform(0, 0.05)
-        random_color_value_b = random.uniform(0, 0.)
-        node_colors.color_ramp.elements[0].color = (random_color_value_r,random_color_value_g,random_color_value_b,1)
-        # connect nodes
-        cap_material.node_tree.links.new(node_coords.outputs[3], node_mapping.inputs[0])
-        cap_material.node_tree.links.new(node_mapping.outputs[0], node_dots.inputs[0])
-        cap_material.node_tree.links.new(node_dots.outputs[0], node_math.inputs[0])
-        cap_material.node_tree.links.new(node_math.outputs[0], node_colors.inputs[0])
-        cap_material.node_tree.links.new(node_colors.outputs[0], nodes_cap["Principled BSDF"].inputs[0])
-        
-        
-        cap_material.diffuse_color = (1, 0, 0, 1)
+        # append cap material to object
         obj.data.materials.append(cap_material)
         # assign material to cap faces
         bm.faces.ensure_lookup_table()
         for i in range(0, 10):
             bm.faces[i].material_index = 1
         for i in range(11, 18):
-            bm.faces[i].material_index = 1
+            bm.faces[i].material_index = 1   
             
         """ STEP 8 : CHANGE CAP HEIGHT """
         random_translate_factor = random.uniform(0.1, 1)
@@ -205,30 +184,61 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
         
         return mushroom_object
     
-    
-    def generate_boletus(self) -> bpy.types.Object:
-        boletus: bpy.types.Object = self.generate_mushroom()
-        
-        return boletus
-    
-    
-    def generate_crested_inkling(self) -> bpy.types.Object:
-        crested_inkling: bpy.types.Object = self.generate_mushroom()
-        
-        return crested_inkling
+    """
+    def create_boletus_materials(self):
+
+        return stem_material, cap_material
         
         
-    def generate_drab_bonnet(self) -> bpy.types.Object:
-        drab_bonnet: bpy.types.Object = self.generate_mushroom()
-        
-        return drab_bonnet
+    def create_crested_inkling_materials(self):
+
+        return stem_material, cap_material
     
     
-    def generate_toadstool(self) -> bpy.types.Object:
-        toadstool: bpy.types.Object = self.generate_mushroom()
+    def create_drab_bonnet_materials(self):
         
-        return toadstool
+        return stem_material, cap_material
+    """
+    
+    def create_toadstool_materials(self):
+        """ CREATE STEM MATERIAL """
+        stem_material = bpy.data.materials.new(name="toadstool_stem")
+        stem_material.diffuse_color = (1, 0.847914, 0.631299, 1)
         
+        """ CREATE CAP MATERIAL """
+        cap_material = bpy.data.materials.new(name="toadstool_cap")
+        # enable nodes
+        cap_material.use_nodes = True
+        nodes_cap = cap_material.node_tree.nodes
+        # create all nodes
+        node_coords = nodes_cap.new("ShaderNodeTexCoord")
+        node_mapping = nodes_cap.new("ShaderNodeMapping")
+        node_dots = nodes_cap.new("ShaderNodeTexVoronoi")
+        node_math = nodes_cap.new("ShaderNodeMath")
+        node_math.operation = 'LESS_THAN'
+        node_colors = nodes_cap.new("ShaderNodeValToRGB")
+        # set nodes' values
+        # voronoi node
+        node_dots.inputs[2].default_value = 60 # scale
+        random_randomness_value = random.uniform(0.5, 1)
+        node_dots.inputs[5].default_value = random_randomness_value # randomness
+        # less than node
+        random_threshold_value = random.uniform(0.2, 0.45)
+        node_math.inputs[1].default_value = random_threshold_value # threshold
+        # color ramp node
+        random_color_value_r = random.uniform(1, 1)
+        random_color_value_g = random.uniform(0, 0.05)
+        random_color_value_b = random.uniform(0, 0.)
+        node_colors.color_ramp.elements[0].color = (random_color_value_r,random_color_value_g,random_color_value_b,1)
+        # connect nodes
+        cap_material.node_tree.links.new(node_coords.outputs[3], node_mapping.inputs[0])
+        cap_material.node_tree.links.new(node_mapping.outputs[0], node_dots.inputs[0])
+        cap_material.node_tree.links.new(node_dots.outputs[0], node_math.inputs[0])
+        cap_material.node_tree.links.new(node_math.outputs[0], node_colors.inputs[0])
+        cap_material.node_tree.links.new(node_colors.outputs[0], nodes_cap["Principled BSDF"].inputs[0])
+        
+        return stem_material, cap_material
+   
     
     @classmethod
     def poll(cls, context):
@@ -248,25 +258,20 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
         except:
             ... # collction already linked
             
+              
+        generated_mushroom: bpy.types.Object = self.generate_mushroom()
+        mushroom_collection.objects.link(generated_mushroom)
             
         if self.SPECIES == 'SP1':
-            boletus_mushroom: bpy.types.Object = self.generate_boletus()
-            mushroom_collection.objects.link(boletus_mushroom)
             bpy.context.object.name = "Boletus"
             
         elif self.SPECIES == 'SP2':
-            crested_inkling_mushroom: bpy.types.Object = self.generate_crested_inkling()
-            mushroom_collection.objects.link(crested_inkling_mushroom)
             bpy.context.object.name = "Crested Inkling"
         
         elif self.SPECIES == 'SP3':
-            drab_bonnet_mushroom: bpy.types.Object = self.generate_drab_bonnet()
-            mushroom_collection.objects.link(drab_bonnet_mushroom)
             bpy.context.object.name = "Drab Bonnet"
             
         elif self.SPECIES == 'SP4':
-            toadstool_mushroom: bpy.types.Object = self.generate_toadstool()
-            mushroom_collection.objects.link(toadstool_mushroom)
             bpy.context.object.name = "Toadstool"
         
 
