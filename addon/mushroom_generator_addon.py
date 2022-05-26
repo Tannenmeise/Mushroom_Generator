@@ -18,33 +18,41 @@ bl_info = {
 }
 
 
-class MUSHROOMGENERATOR_OT_add_toadstool(bpy.types.Operator):
-    bl_idname = "mushroomgenerator.add_toadstool"
-    bl_label = "Toadstool"
-    bl_description = "Add a randomly generated toadstool"
+class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
+    bl_idname = "mushroomgenerator.add_mushroom"
+    bl_label = "Mushroom"
+    bl_description = "Add a randomly generated mushroom"
     bl_options = {"REGISTER", "UNDO"}
     
+    SPECIES: bpy.props.EnumProperty(
+        name="Species",
+        description="Select a mushroom species",
+        items= [('SP1', "Boletus", ""),
+                ('SP2', "Crested Inkling", ""),
+                ('SP3', "Drab Bonnet", ""),
+                ('SP4', "Toadstool", "")
+        ]
+    )
     SEED: bpy.props.IntProperty(name="Seed")
     
     
-    def generate_toadstool(self) -> bpy.types.Object:
-        
+    def generate_mushroom(self) -> bpy.types.Object:
         # create (empty) mesh
-        toadstool_mesh = bpy.data.meshes.new('Toadstool')
+        mushroom_mesh = bpy.data.meshes.new('Mushroom')
         # create object
-        toadstool_object = bpy.data.objects.new("Toadstool", toadstool_mesh)
+        mushroom_object = bpy.data.objects.new("Mushroom", mushroom_mesh)
         # add object to a collection
-        bpy.context.collection.objects.link(toadstool_object)
+        bpy.context.collection.objects.link(mushroom_object)
 
         # create a new bmesh
         bm = bmesh.new()
         # create a bmesh cube
         bmesh.ops.create_cube(bm, size=1.0)
         # assign bmesh to the blender mesh
-        bm.to_mesh(toadstool_mesh)
+        bm.to_mesh(mushroom_mesh)
 
         # set the object to active in the 3d viewer
-        bpy.context.view_layer.objects.active = bpy.data.objects['Toadstool']
+        bpy.context.view_layer.objects.active = bpy.data.objects['Mushroom']
         # get active object
         obj = bpy.context.active_object
 
@@ -188,8 +196,6 @@ class MUSHROOMGENERATOR_OT_add_toadstool(bpy.types.Operator):
             vert.co.y *= random_scale_factor
             vert.co.z *= random_scale_factor
         
-        """ STEP X : PLACE TOADSTOOL SOMEWHERE IN SCENE """
-        
         """ DONE """
 
         obj.data.update()
@@ -197,8 +203,32 @@ class MUSHROOMGENERATOR_OT_add_toadstool(bpy.types.Operator):
         bm.free()
         obj.data.update()
         
-        return toadstool_object
+        return mushroom_object
     
+    
+    def generate_boletus(self) -> bpy.types.Object:
+        boletus: bpy.types.Object = self.generate_mushroom()
+        
+        return boletus
+    
+    
+    def generate_crested_inkling(self) -> bpy.types.Object:
+        crested_inkling: bpy.types.Object = self.generate_mushroom()
+        
+        return crested_inkling
+        
+        
+    def generate_drab_bonnet(self) -> bpy.types.Object:
+        drab_bonnet: bpy.types.Object = self.generate_mushroom()
+        
+        return drab_bonnet
+    
+    
+    def generate_toadstool(self) -> bpy.types.Object:
+        toadstool: bpy.types.Object = self.generate_mushroom()
+        
+        return toadstool
+        
     
     @classmethod
     def poll(cls, context):
@@ -208,29 +238,50 @@ class MUSHROOMGENERATOR_OT_add_toadstool(bpy.types.Operator):
         random.seed(self.SEED)
         mushroom_collection: bpy.types.Collection
         
-        if "Toadstool" in bpy.data.collections:
-            mushroom_collection = bpy.data.collections["Toadstool"]
+        if "Mushroom" in bpy.data.collections:
+            mushroom_collection = bpy.data.collections["Mushroom"]
         else:
-            mushroom_collection = bpy.data.collections.new("Toadstool")
+            mushroom_collection = bpy.data.collections.new("Mushroom")
          
         try:
             bpy.context.scene.collection.children.link(mushroom_collection)
         except:
             ... # collction already linked
             
-        c_mushroom: bpy.types.Object = self.generate_toadstool()
-        mushroom_collection.objects.link(c_mushroom)
+            
+        if self.SPECIES == 'SP1':
+            boletus_mushroom: bpy.types.Object = self.generate_boletus()
+            mushroom_collection.objects.link(boletus_mushroom)
+            bpy.context.object.name = "Boletus"
+            
+        elif self.SPECIES == 'SP2':
+            crested_inkling_mushroom: bpy.types.Object = self.generate_crested_inkling()
+            mushroom_collection.objects.link(crested_inkling_mushroom)
+            bpy.context.object.name = "Crested Inkling"
+        
+        elif self.SPECIES == 'SP3':
+            drab_bonnet_mushroom: bpy.types.Object = self.generate_drab_bonnet()
+            mushroom_collection.objects.link(drab_bonnet_mushroom)
+            bpy.context.object.name = "Drab Bonnet"
+            
+        elif self.SPECIES == 'SP4':
+            toadstool_mushroom: bpy.types.Object = self.generate_toadstool()
+            mushroom_collection.objects.link(toadstool_mushroom)
+            bpy.context.object.name = "Toadstool"
+        
 
         return {"FINISHED"}
 
 
 def menu_func(self, context):
-    self.layout.operator(MUSHROOMGENERATOR_OT_add_toadstool.bl_idname, icon='LIGHT_HEMI')
+    self.layout.operator(MUSHROOMGENERATOR_OT_add_mushroom.bl_idname, icon='LIGHT_HEMI')
 
 def register():
-    bpy.utils.register_class(MUSHROOMGENERATOR_OT_add_toadstool)
+    bpy.utils.register_class(MUSHROOMGENERATOR_OT_add_mushroom)
     bpy.types.VIEW3D_MT_mesh_add.append(menu_func)
 
 def unregister():
-    bpy.utils.unregister_class(MUSHROOMGENERATOR_OT_add_toadstool)
+    bpy.utils.unregister_class(MUSHROOMGENERATOR_OT_add_mushroom)
     bpy.types.VIEW3D_MT_mesh_add.remove(menu_func)
+
+    
