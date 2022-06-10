@@ -32,20 +32,9 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
     )
     SEED: bpy.props.IntProperty(name="Seed")
     
-    boletus_parameters = []
-    crested_inkling_parameters = []
-    drab_bonnet_parameters = []
-    toadstool_parameters = []
-    
     
     def generate_mushroom(self) -> bpy.types.Object:
         """ STEP 0 : GET SPECIES PARAMETERS """
-        #random_stem_thickness = random.uniform(0.1, 0.3)
-        #random_stem_base_thickness = random.uniform(1.5, 1.5)
-        #random_cap_height = random.uniform(0.1, 1)
-        #random_cap_width = random.uniform(0.9, 2.5)
-        #random_height = random.uniform(0.045, 0.09)
-        
         # Boletus
         if self.SPECIES == 'SP1':
             random_stem_thickness = random.uniform(0.01, 0.1)
