@@ -32,8 +32,55 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
     )
     SEED: bpy.props.IntProperty(name="Seed")
     
+    boletus_parameters = []
+    crested_inkling_parameters = []
+    drab_bonnet_parameters = []
+    toadstool_parameters = []
+    
     
     def generate_mushroom(self) -> bpy.types.Object:
+        """ STEP 0 : GET SPECIES PARAMETERS """
+        #random_stem_thickness = random.uniform(0.1, 0.3)
+        #random_stem_base_thickness = random.uniform(1.5, 1.5)
+        #random_cap_height = random.uniform(0.1, 1)
+        #random_cap_width = random.uniform(0.9, 2.5)
+        #random_height = random.uniform(0.045, 0.09)
+        
+        # Boletus
+        if self.SPECIES == 'SP1':
+            random_stem_thickness = random.uniform(0.01, 0.1)
+            random_stem_base_thickness = random.uniform(1.8, 2.8)
+            random_cap_height = random.uniform(0.7, 0.9)
+            random_cap_width = random.uniform(1.2, 2.1)
+            # realistic size (1 = 1m): mushroom 8cm to 20cm
+            random_height = random.uniform(0.036, 0.09)
+            
+        # Crested Inkling | TODO: Parameters
+        elif self.SPECIES == 'SP2':
+            random_stem_thickness = random.uniform(0.1, 0.3)
+            random_stem_base_thickness = random.uniform(1.5, 1.5)
+            random_cap_height = random.uniform(0.1, 1)
+            random_cap_width = random.uniform(0.9, 2.5)
+            random_height = random.uniform(0.045, 0.09)
+            
+        # Drab Bonnet | TODO: Parameters
+        elif self.SPECIES == 'SP3':
+            random_stem_thickness = random.uniform(0.1, 0.3)
+            random_stem_base_thickness = random.uniform(1.5, 1.5)
+            random_cap_height = random.uniform(0.1, 1)
+            random_cap_width = random.uniform(0.9, 2.5)
+            random_height = random.uniform(0.045, 0.09)
+            
+        # Toadstool
+        elif self.SPECIES == 'SP4':
+            random_stem_thickness = random.uniform(0.1, 0.3)
+            random_stem_base_thickness = random.uniform(1.5, 1.5)
+            random_cap_height = random.uniform(0.1, 1)
+            random_cap_width = random.uniform(0.9, 2.5)
+            # realistic size (1 = 1m): mushroom 10cm to 20cm
+            random_height = random.uniform(0.045, 0.09)
+        
+        """ STEP 1 : INITIAL CREATION """
         # create (empty) mesh
         mushroom_mesh = bpy.data.meshes.new('Mushroom')
         # create object
@@ -59,7 +106,7 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
         bpy.context.object.modifiers["Subdivision"].levels = 4
         bpy.context.object.modifiers["Subdivision"].render_levels = 4
 
-        """ STEP 1 : INSET CAP """
+        """ STEP 2 : INSET CAP """
         # needed to get "bm.faces[i]"
         bm.faces.ensure_lookup_table()
         # get the face
@@ -67,7 +114,7 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
         # inset the bottom face
         bmesh.ops.inset_region(bm, faces=face, thickness=0.25, depth=0)
 
-        """ STEP 2 : EXTRUDE CAP """
+        """ STEP 3 : EXTRUDE CAP """
         # extrude (creates new geometry)
         bmesh.ops.extrude_face_region(bm, geom=face)
         # needed to get the updated "bm.verts[i]"
@@ -79,14 +126,13 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
         # remove the leftover face (= face)
         bmesh.ops.delete(bm, geom=face, context ='FACES_ONLY')
         
-        """ STEP 3 : INSET STEM """
-        random_stem_thickness = random.uniform(0.1, 0.3)
+        """ STEP 4 : INSET STEM """
         #random_stem_thickness = 0.2
         bm.faces.ensure_lookup_table()
         face = [bm.faces[9]]
         bmesh.ops.inset_region(bm, faces=face, thickness=random_stem_thickness, depth=0)
         
-        """ STEP 4 : EXTRUDE STEM """
+        """ STEP 5 : EXTRUDE STEM """
         translate_factor = 1
         # first extrusion
         bmesh.ops.extrude_face_region(bm, geom=face)
@@ -103,15 +149,15 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
             bm.verts[i].co += bm.verts[i].normal * translate_factor
         bmesh.ops.delete(bm, geom=face, context ='FACES_ONLY')
 
-        """ STEP 5 : THICKEN STEM BASE """
-        scale_factor = 1.5
+        """ STEP 6 : THICKEN STEM BASE """
+        #random_stem_base_thickness = 1.5
         bm.verts.ensure_lookup_table()
         for i in range(24, 28):
-            bm.verts[i].co.x *= scale_factor
-            bm.verts[i].co.y *= scale_factor
+            bm.verts[i].co.x *= random_stem_base_thickness
+            bm.verts[i].co.y *= random_stem_base_thickness
         
-        """ STEP 6 : ADD MATERIAL """
-        """
+        """ STEP 7 : ADD MATERIAL """
+        
         if self.SPECIES == 'SP1':
             stem_material, cap_material = self.create_boletus_materials()
             
@@ -123,8 +169,6 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
             
         elif self.SPECIES == 'SP4':
             stem_material, cap_material = self.create_toadstool_materials()
-        """
-        stem_material, cap_material = self.create_toadstool_materials()
         
         
         # append stem material to object
@@ -145,35 +189,31 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
             bm.faces[i].material_index = 1   
             
         """ STEP 8 : CHANGE CAP HEIGHT """
-        random_translate_factor = random.uniform(0.1, 1)
         #random_translate_factor = 1
         bm.verts.ensure_lookup_table()
         for i in range(0, 7, 2):
-            bm.verts[i].co.z *= random_translate_factor
+            bm.verts[i].co.z *= random_cap_height
         for i in range(8, 12):
-            bm.verts[i].co.z *= random_translate_factor
+            bm.verts[i].co.z *= random_cap_height
         
         """STEP 9 : CHANGE CAP WIDTH """
-        random_scale_factor = random.uniform(0.9, 2.5)
         #random_scale_factor = 1
         bm.verts.ensure_lookup_table()
         for i in range(0, 7, 2):
-            bm.verts[i].co.x *= random_scale_factor
-            bm.verts[i].co.y *= random_scale_factor
+            bm.verts[i].co.x *= random_cap_width
+            bm.verts[i].co.y *= random_cap_width
         for i in range(8, 12):
-            bm.verts[i].co.x *= random_scale_factor
-            bm.verts[i].co.y *= random_scale_factor
+            bm.verts[i].co.x *= random_cap_width
+            bm.verts[i].co.y *= random_cap_width
             
-        """ STEP 9 : OVERALL SCALING """
+        """ STEP 10 : OVERALL SCALING """
         # scale all vectors to make an overall smaller or bigger mushroom
-        # realistic size (1 = 1m): mushroom 10cm to 20cm
-        random_scale_factor = random.uniform(0.045, 0.09)
         #random_scale_factor = 0.09
         bm.verts.ensure_lookup_table()
         for vert in bm.verts:
-            vert.co.x *= random_scale_factor
-            vert.co.y *= random_scale_factor
-            vert.co.z *= random_scale_factor
+            vert.co.x *= random_height
+            vert.co.y *= random_height
+            vert.co.z *= random_height
         
         """ DONE """
 
@@ -184,21 +224,45 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
         
         return mushroom_object
     
-    """
+    
     def create_boletus_materials(self):
-
+        """ CREATE STEM MATERIAL """
+        stem_material = bpy.data.materials.new(name="boletus_stem")
+        stem_material.diffuse_color = (0.9215, 0.8117, 0.7098, 1)
+        
+        """ CREATE CAP MATERIAL """
+        cap_material = bpy.data.materials.new(name="boletus_cap")
+        random_color_total_value = random.uniform(0, 0.4901)
+        cap_material.diffuse_color = (0.2588 + random_color_total_value, 0.1019 + random_color_total_value, 0.0078 + random_color_total_value, 1)
+        
         return stem_material, cap_material
         
         
+    # TODO:
     def create_crested_inkling_materials(self):
-
-        return stem_material, cap_material
-    
-    
-    def create_drab_bonnet_materials(self):
+        """ CREATE STEM MATERIAL """
+        stem_material = bpy.data.materials.new(name="crested_inkling_stem")
+        stem_material.diffuse_color = (0.2627, 0.2470, 0.2705, 1)
+        
+        """ CREATE CAP MATERIAL """
+        cap_material = bpy.data.materials.new(name="crested_inkling_cap")
+        cap_material.diffuse_color = (0.4039, 0.3764, 0.4117, 1)
         
         return stem_material, cap_material
-    """
+    
+    
+    # TODO:
+    def create_drab_bonnet_materials(self):
+        """ CREATE STEM MATERIAL """
+        stem_material = bpy.data.materials.new(name="drab_bonnet_stem")
+        stem_material.diffuse_color = (0.84705, 0.84705, 0.84705, 1)
+        
+        """ CREATE CAP MATERIAL """
+        cap_material = bpy.data.materials.new(name="drab_bonnet_cap")
+        cap_material.diffuse_color = (0.9294, 0.9294, 0.9294, 1)
+        
+        return stem_material, cap_material
+    
     
     def create_toadstool_materials(self):
         """ CREATE STEM MATERIAL """
@@ -258,8 +322,9 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
         except:
             ... # collction already linked
             
-              
+        # generate the mushroom
         generated_mushroom: bpy.types.Object = self.generate_mushroom()
+        # link the mushroom to the collection
         mushroom_collection.objects.link(generated_mushroom)
             
         if self.SPECIES == 'SP1':
