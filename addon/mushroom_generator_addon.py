@@ -247,8 +247,41 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
         
         """ CREATE CAP MATERIAL """
         cap_material = bpy.data.materials.new(name="crested_inkling_cap")
-        random_color_total_value = random.uniform(0, 0.0470)
-        cap_material.diffuse_color = (0.9529 + random_color_total_value, 0.9058 + random_color_total_value * 2, 0.8588 + random_color_total_value * 3, 1)
+        # enable nodes
+        cap_material.use_nodes = True
+        nodes_cap = cap_material.node_tree.nodes
+        # create all nodes
+        node_wave_1 = nodes_cap.new("ShaderNodeTexWave")
+        node_wave_2 = nodes_cap.new("ShaderNodeTexWave")
+        node_mix = nodes_cap.new("ShaderNodeMixRGB")
+        node_colors = nodes_cap.new("ShaderNodeValToRGB")
+        # set nodes' values
+        # wave nodes
+        node_wave_1.bands_direction = 'Z'
+        node_wave_1.wave_profile = 'SAW'
+        node_wave_1.inputs[1].default_value = 4.5
+        node_wave_1.inputs[2].default_value = 4.5
+        node_wave_1.inputs[3].default_value = 3.4
+        node_wave_1.inputs[4].default_value = 2.4
+        node_wave_1.inputs[6].default_value = 0.5
+        node_wave_2.bands_direction = 'Z'
+        node_wave_2.wave_profile = 'SAW'
+        node_wave_2.inputs[1].default_value = 4.5
+        node_wave_2.inputs[2].default_value = 4.5
+        node_wave_2.inputs[3].default_value = 3.4
+        node_wave_2.inputs[4].default_value = 2.4
+        # mix node
+        node_mix.blend_type = 'ADD'
+        # color ramp node
+        node_colors.color_ramp.elements[0].color = (0.1513,0.1425,0.1180,1)
+        node_colors.color_ramp.elements.new(0.1939)
+        node_colors.color_ramp.elements[1].color = (0.8056,0.7318,0.5348,1)
+        node_colors.color_ramp.elements[2].color = (1,1,1,1)
+        # connect nodes
+        cap_material.node_tree.links.new(node_wave_1.outputs[0], node_mix.inputs[1])
+        cap_material.node_tree.links.new(node_wave_2.outputs[0], node_mix.inputs[2])
+        cap_material.node_tree.links.new(node_mix.outputs[0], node_colors.inputs[0])
+        cap_material.node_tree.links.new(node_colors.outputs[0], nodes_cap["Principled BSDF"].inputs[0])
         
         return stem_material, cap_material
     
