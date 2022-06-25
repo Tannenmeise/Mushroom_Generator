@@ -160,23 +160,21 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
             stem_material, cap_material = self.create_drab_bonnet_materials()    
         elif self.SPECIES == 'SP4':
             stem_material, cap_material = self.create_toadstool_materials()
-        
-        # append stem material to object
-        obj.data.materials.append(stem_material)
-        # assign material to stem faces
-        bm.faces.ensure_lookup_table()
-        bm.faces[10].material_index = 0
-        for i in range(18, 26):
-            bm.faces[i].material_index = 0
              
         # append cap material to object
         obj.data.materials.append(cap_material)
         # assign material to cap faces
         bm.faces.ensure_lookup_table()
         for i in range(0, 10):
+            bm.faces[i].material_index = 0
+        
+        # append stem material to object
+        obj.data.materials.append(stem_material)
+        # assign material to stem faces
+        bm.faces.ensure_lookup_table()
+        bm.faces[4].material_index = 1
+        for i in range(10, 26):
             bm.faces[i].material_index = 1
-        for i in range(11, 18):
-            bm.faces[i].material_index = 1   
             
         """ STEP 9 : CHANGE CAP HEIGHT """
         bm.verts.ensure_lookup_table()
