@@ -65,6 +65,7 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
             bpy.context.object.name = "Boletus"
             random_stem_thickness = random.uniform(0.01, 0.1)
             random_stem_base_thickness = random.uniform(1.8, 2.8)
+            random_stem_offset = random.uniform(0, 0.25)
             random_cap_height = random.uniform(0.7, 0.9)
             random_cap_width = random.uniform(1.2, 2.1)
             random_cap_top_width = 1
@@ -75,6 +76,7 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
             bpy.context.object.name = "Crested Inkling"
             random_stem_thickness = random.uniform(0.25, 0.3)
             random_stem_base_thickness = 1.2
+            random_stem_offset = 0
             random_cap_height = random.uniform(1, 2)
             random_cap_width = random.uniform(0.4, 0.7)
             random_cap_top_width = 0.8
@@ -85,6 +87,7 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
             bpy.context.object.name = "Drab Bonnet"
             random_stem_thickness = random.uniform(0.3, 0.35)
             random_stem_base_thickness = 1.3
+            random_stem_offset = random.uniform(0, 0.5)
             random_cap_height = random.uniform(-0.1, 0.8)
             random_cap_width = 1
             random_cap_top_width = 0.5
@@ -95,6 +98,7 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
             bpy.context.object.name = "Toadstool"
             random_stem_thickness = random.uniform(0.1, 0.3)
             random_stem_base_thickness = random.uniform(1.5, 1.5)
+            random_stem_offset = random.uniform(0, 0.1)
             random_cap_height = random.uniform(0.1, 1)
             random_cap_width = random.uniform(0.9, 2.5)
             random_cap_top_width = 1
@@ -149,8 +153,13 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
         for i in range(24, 28):
             bm.verts[i].co.x *= random_stem_base_thickness
             bm.verts[i].co.y *= random_stem_base_thickness
+            
+        """ STEP 8 : OFFSET STEM BASE """
+        bm.verts.ensure_lookup_table()
+        for i in range(24, 28):
+            bm.verts[i].co.y -= random_stem_offset
         
-        """ STEP 8 : ADD MATERIAL """
+        """ STEP 9 : ADD MATERIAL """
         # create material for specific species
         if self.SPECIES == 'SP1':
             stem_material, cap_material = self.create_boletus_materials()
@@ -176,14 +185,14 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
         for i in range(10, 26):
             bm.faces[i].material_index = 1
             
-        """ STEP 9 : CHANGE CAP HEIGHT """
+        """ STEP 10 : CHANGE CAP HEIGHT """
         bm.verts.ensure_lookup_table()
         for i in range(0, 7, 2):
             bm.verts[i].co.z *= random_cap_height
         for i in range(8, 12):
             bm.verts[i].co.z *= random_cap_height
         
-        """ STEP 10 : CHANGE CAP WIDTH """
+        """ STEP 11 : CHANGE CAP WIDTH """
         bm.verts.ensure_lookup_table()
         for i in range(0, 7, 2):
             bm.verts[i].co.x *= random_cap_width
@@ -192,7 +201,7 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
             bm.verts[i].co.x *= random_cap_width
             bm.verts[i].co.y *= random_cap_width
             
-        """ STEP 11 : CHANGE CAP TOP SIZE """
+        """ STEP 12 : CHANGE CAP TOP SIZE """
         bm.verts.ensure_lookup_table()
         for i in range(1, 8, 2):
             bm.verts[i].co.x *= random_cap_top_width
@@ -201,7 +210,7 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
             bm.verts[i].co.x *= random_cap_top_width
             bm.verts[i].co.y *= random_cap_top_width
             
-        """ STEP 12 : OVERALL SCALING """
+        """ STEP 13 : OVERALL SCALING """
         bm.verts.ensure_lookup_table()
         for vert in bm.verts:
             vert.co.x *= random_height
@@ -307,10 +316,10 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
         random.seed(self.SEED)
         mushroom_collection: bpy.types.Collection
         
-        if "Mushroom" in bpy.data.collections:
-            mushroom_collection = bpy.data.collections["Mushroom"]
+        if "Mushrooms" in bpy.data.collections:
+            mushroom_collection = bpy.data.collections["Mushrooms"]
         else:
-            mushroom_collection = bpy.data.collections.new("Mushroom")
+            mushroom_collection = bpy.data.collections.new("Mushrooms")
          
         try:
             bpy.context.scene.collection.children.link(mushroom_collection)
@@ -321,6 +330,9 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
         generated_mushroom: bpy.types.Object = self.generate_mushroom()
         # link the mushroom to the collection
         mushroom_collection.objects.link(generated_mushroom)
+        # unlink mushroom from scene collection
+        scene_collection = bpy.context.scene.collection
+        scene_collection.objects.unlink(generated_mushroom)
 
         return {"FINISHED"}
 
