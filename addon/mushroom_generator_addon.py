@@ -261,7 +261,8 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
     def create_toadstool_materials(self):
         """ CREATE STEM MATERIAL """
         stem_material = bpy.data.materials.new(name="toadstool_stem")
-        stem_material.diffuse_color = (1, 0.8479, 0.6313, 1)
+        random_color_total_value = random.uniform(0, 0.1521)
+        stem_material.diffuse_color = (1, 0.8479 + random_color_total_value, 0.6313 + random_color_total_value * 2.4, 1)
         
         """ CREATE CAP MATERIAL """
         cap_material = bpy.data.materials.new(name="toadstool_cap")
