@@ -363,9 +363,6 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
         generated_mushroom: bpy.types.Object = self.generate_mushroom()
         # link the mushroom to the collection
         mushroom_collection.objects.link(generated_mushroom)
-        # unlink mushroom from scene collection
-        scene_collection = bpy.context.scene.collection
-        scene_collection.objects.unlink(generated_mushroom)
 
         return {"FINISHED"}
 
