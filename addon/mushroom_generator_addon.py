@@ -97,7 +97,7 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
         elif self.SPECIES == 'SP4':
             bpy.context.object.name = "Toadstool"
             random_stem_thickness = random.uniform(0.1, 0.3)
-            random_stem_base_thickness = random.uniform(1.5, 1.5)
+            random_stem_base_thickness = 1.5
             random_stem_offset = random.uniform(0, 0.1)
             random_cap_height = random.uniform(0.1, 1)
             random_cap_width = random.uniform(0.9, 2.5)
@@ -273,10 +273,10 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
         # mix node
         node_mix.blend_type = 'ADD'
         # color ramp node
-        node_colors.color_ramp.elements[0].color = (0.1513,0.1425,0.1180,1)
+        node_colors.color_ramp.elements[0].color = (0.1513, 0.1425, 0.1180, 1)
         node_colors.color_ramp.elements.new(0.1939)
-        node_colors.color_ramp.elements[1].color = (0.8056,0.7318,0.5348,1)
-        node_colors.color_ramp.elements[2].color = (1,1,1,1)
+        node_colors.color_ramp.elements[1].color = (0.8056, 0.7318, 0.5348, 1)
+        node_colors.color_ramp.elements[2].color = (1, 1, 1, 1)
         # connect nodes
         cap_material.node_tree.links.new(node_wave_1.outputs[0], node_mix.inputs[1])
         cap_material.node_tree.links.new(node_wave_2.outputs[0], node_mix.inputs[2])
@@ -327,9 +327,9 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
         random_threshold_value = random.uniform(0.2, 0.45)
         node_math.inputs[1].default_value = random_threshold_value # threshold
         # color ramp node
-        random_color_value_r = random.uniform(1, 1)
+        random_color_value_r = 1
         random_color_value_g = random.uniform(0, 0.05)
-        random_color_value_b = random.uniform(0, 0.)
+        random_color_value_b = 0
         node_colors.color_ramp.elements[0].color = (random_color_value_r,random_color_value_g,random_color_value_b,1)
         # connect nodes
         cap_material.node_tree.links.new(node_coords.outputs[3], node_mapping.inputs[0])
