@@ -1,12 +1,12 @@
 # Mushroom Generator
-*Blender Addon :: Generate a delightful amount of likable mushrooms*
+*Blender Add-on :: Generate a delightful amount of likable mushrooms*
 
 - Made for "Datenverarbeitung in der Medienproduktion" (SoSe 2022) at the [HFU](https://www.hs-furtwangen.de/)
 
 
 ## About
 
-This addon allows you to generate different kinds of mushrooms.
+This add-on allows you to generate different kinds of mushrooms.
 
 There a **four different species** available:
 1. Boletus Mushroom
