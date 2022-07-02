@@ -1,6 +1,7 @@
 import bpy
 import bmesh
 import random
+from mathutils import Color
 
 bl_info = {
     "name": "Mushroom Generator",
@@ -74,7 +75,7 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
             
         elif self.SPECIES == 'SP2':
             bpy.context.object.name = "Crested Inkling"
-            random_stem_thickness = random.uniform(0.25, 0.3)
+            random_stem_thickness = random.uniform(0.3, 0.32)
             random_stem_base_thickness = 1.2
             random_stem_offset = 0
             random_cap_height = random.uniform(1, 2)
@@ -99,7 +100,7 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
             random_stem_thickness = random.uniform(0.1, 0.3)
             random_stem_base_thickness = 1.5
             random_stem_offset = random.uniform(0, 0.1)
-            random_cap_height = random.uniform(0.1, 1)
+            random_cap_height = random.uniform(0.3, 1)
             random_cap_width = random.uniform(0.9, 2.5)
             random_cap_top_width = 1
             # realistic size (1 = 1m): mushroom 10cm to 20cm
@@ -229,12 +230,33 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
     def create_boletus_materials(self):
         """ CREATE STEM MATERIAL """
         stem_material = bpy.data.materials.new(name="boletus_stem")
-        stem_material.diffuse_color = (0.9215, 0.8117, 0.7098, 1)
+        
+        c = Color()
+        c.hsv = 0.1125, 0.2140, 1
+        
+        random_added_h_value = random.uniform(0, 0.0229)
+        random_added_s_value = random.uniform(0, 0.2046)
+        
+        c.h -= random_added_h_value
+        c.s += random_added_s_value
+        
+        stem_material.diffuse_color = (c.r, c.g, c.b, 1)
         
         """ CREATE CAP MATERIAL """
         cap_material = bpy.data.materials.new(name="boletus_cap")
-        random_color_total_value = random.uniform(0, 0.4901)
-        cap_material.diffuse_color = (0.2588 + random_color_total_value, 0.1019 + random_color_total_value, 0.0078 + random_color_total_value, 1)
+        
+        c = Color()
+        c.hsv = 0.0707, 0.6, 0.7742 
+        
+        random_added_h_value = random.uniform(0, 0.0257)
+        random_added_s_value = random.uniform(0, 0.08)
+        random_added_v_value = random.uniform(0, 0.5)
+        
+        c.h -= random_added_h_value
+        c.s -= random_added_s_value
+        c.v -= random_added_v_value
+        
+        cap_material.diffuse_color = (c.r, c.g, c.b, 1)
         
         return stem_material, cap_material
         
@@ -242,8 +264,8 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
     def create_crested_inkling_materials(self):
         """ CREATE STEM MATERIAL """
         stem_material = bpy.data.materials.new(name="crested_inkling_stem")
-        random_color_total_value = random.uniform(0, 0.0470)
-        stem_material.diffuse_color = (0.9529 + random_color_total_value, 0.9058 + random_color_total_value * 2, 0.8588 + random_color_total_value * 3, 1)
+        random_added_b_value = random.uniform(0, 0.2)
+        stem_material.diffuse_color = (1, 0.9, 0.8 + random_added_b_value, 1)
         
         """ CREATE CAP MATERIAL """
         cap_material = bpy.data.materials.new(name="crested_inkling_cap")
@@ -276,7 +298,8 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
         node_colors.color_ramp.elements[0].color = (0.1513, 0.1425, 0.1180, 1)
         node_colors.color_ramp.elements.new(0.1939)
         node_colors.color_ramp.elements[1].color = (0.8056, 0.7318, 0.5348, 1)
-        node_colors.color_ramp.elements[2].color = (1, 1, 1, 1)
+        random_added_b_value = random.uniform(0, 0.15)
+        node_colors.color_ramp.elements[2].color = (1, 1, 0.85 + random_added_b_value, 1)
         # connect nodes
         cap_material.node_tree.links.new(node_wave_1.outputs[0], node_mix.inputs[1])
         cap_material.node_tree.links.new(node_wave_2.outputs[0], node_mix.inputs[2])
@@ -320,17 +343,24 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
         node_colors = nodes_cap.new("ShaderNodeValToRGB")
         # set nodes' values
         # voronoi node
-        node_dots.inputs[2].default_value = 60 # scale
-        random_randomness_value = random.uniform(0.5, 1)
-        node_dots.inputs[5].default_value = random_randomness_value # randomness
+        random_scale_value = random.uniform(55, 120) # scale
+        node_dots.inputs[2].default_value = random_scale_value
+        node_dots.inputs[5].default_value = 1 # randomness
         # less than node
-        random_threshold_value = random.uniform(0.2, 0.45)
+        random_threshold_value = random.uniform(0.15, 0.3)
         node_math.inputs[1].default_value = random_threshold_value # threshold
+        
         # color ramp node
-        random_color_value_r = 1
-        random_color_value_g = random.uniform(0, 0.05)
-        random_color_value_b = 0
-        node_colors.color_ramp.elements[0].color = (random_color_value_r,random_color_value_g,random_color_value_b,1)
+        c = Color()
+        c.hsv = 0.01, 1, 1
+        random_added_h_value = random.uniform(0, 0.01)
+        random_added_v_value = random.uniform(0, 0.3262)
+        c.h -= random_added_h_value
+        c.v -= random_added_v_value
+        node_colors.color_ramp.elements[0].color = (c.r, c.g, c.b, 1)
+        # dots color same as stem
+        node_colors.color_ramp.elements[1].color = (1, 0.8479 + random_color_total_value, 0.6313 + random_color_total_value * 2.4, 1)
+        
         # connect nodes
         cap_material.node_tree.links.new(node_coords.outputs[3], node_mapping.inputs[0])
         cap_material.node_tree.links.new(node_mapping.outputs[0], node_dots.inputs[0])
@@ -347,22 +377,9 @@ class MUSHROOMGENERATOR_OT_add_mushroom(bpy.types.Operator):
 
     def execute(self, context):
         random.seed(self.SEED)
-        mushroom_collection: bpy.types.Collection
-        
-        if "Mushrooms" in bpy.data.collections:
-            mushroom_collection = bpy.data.collections["Mushrooms"]
-        else:
-            mushroom_collection = bpy.data.collections.new("Mushrooms")
          
-        try:
-            bpy.context.scene.collection.children.link(mushroom_collection)
-        except:
-            ... # collction already linked
-            
         # generate the mushroom
         generated_mushroom: bpy.types.Object = self.generate_mushroom()
-        # link the mushroom to the collection
-        mushroom_collection.objects.link(generated_mushroom)
 
         return {"FINISHED"}
 
